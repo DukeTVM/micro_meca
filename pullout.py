@@ -63,28 +63,26 @@ def dt(delta,alpha):            #biais partie ancrage/section symétrique
     return dt
 
 #fonction de force axiale
-def F(w,s): 
-    gamma = np.arctan(s/w)          #angle de chargement
-    alpha=phi+gamma                 #angle effective
-    if alpha.any() <0 : alpha = np.absolute(alpha)
-    else : pass
-    DT=np.sqrt(w**2+s**2)/2
-    if DT.any()<= delta0:                
-        N=Nd(DT)
+def F(w,s,phi): 
+    if w.any()==0 : f=0
     else:
-        N=Ne(DT)
-        l=long(phi,gamma,w,s)
-        m=mm(N)
-        K1=k1(N,l,m)
-        K2=k2(K1,l,N,m)
-        P=dt(DT,alpha)/K2
-        f=(N*np.cos(alpha)+P*np.sin(alpha))/2
+        gamma = np.arctan(s/w)          #angle de chargement
+        alpha = np.absolute(phi-gamma)       #angle effective
+    
+        DT=np.sqrt(w**2+s**2)/2
+        if DT.any()<= delta0:                
+            N=Nd(DT)
+        else:
+            N=Ne(DT)
+            l=long(phi,gamma,w,s)
+            m=mm(N)
+            K1=k1(N,l,m)
+            K2=k2(K1,l,N,m)
+            P=dt(DT,alpha)/K2
+            f=(N*np.cos(alpha)+P*np.sin(alpha))/2
     return f
 
-#resultat
-    
-phi=0           #angle inclinaison initial
-w,s = np.meshgrid(np.linspace(0.001, 2, 1001), np.linspace(0.001, 5, 1001))
+#plotting area
 fig=plt.figure(figsize=(14,10))
 plt.rc('xtick', labelsize=12)
 plt.rc('ytick', labelsize=12)
@@ -97,7 +95,11 @@ ax.set_ylabel('Glissement g(mm)',fontsize=12)
 ax.yaxis.labelpad = 10
 ax.set_zlabel('Force axial F(N)',fontsize=12)
 ax.zaxis.labelpad = 10
-ax.plot_surface(w,s,F(w,s)*np.sin(np.arctan(s/w)), linewidth=0.5, antialiased=False, cmap=cm.rainbow)
+
+#resultat
+phi=0           #angle inclinaison initial
+w,s = np.meshgrid(np.linspace(0.00001, 2, 1001), np.linspace(0.00001, 5, 1001))
+ax.plot_surface(w,s,F(w,s,phi)*np.sin(np.arctan(s/w)), linewidth=0.5, antialiased=False, cmap=cm.rainbow)
             
 
 

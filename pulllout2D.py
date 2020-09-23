@@ -72,21 +72,22 @@ def dt(delta,alpha):            #biais partie ancrage/section symétrique
 
 #fonction de force axiale
 def F(w,s,phi): 
-    gamma = np.arctan(s/w)          #angle de chargement
-    alpha = np.absolute(phi-gamma)       #angle effective
-  #  if alpha.any() <0 : alpha = np.absolute(alpha)
- #   else : pass
-    DT=np.sqrt(w**2+s**2)/2
-    if DT.any()<= delta0:                
-        N=Nd(DT)
+    if w==0 : f=0
     else:
-        N=Ne(DT)
-        l=long(phi,gamma,w,s)
-        m=mm(N)
-        K1=k1(N,l,m)
-        K2=k2(K1,l,N,m)
-        P=dt(DT,alpha)/K2
-        f=(N*np.cos(alpha)+P*np.sin(alpha))/2
+        gamma = np.arctan(s/w)          #angle de chargement
+        alpha = np.absolute(phi-gamma)       #angle effective
+    
+        DT=np.sqrt(w**2+s**2)/2
+        if DT.any()<= delta0:                
+            N=Nd(DT)
+        else:
+            N=Ne(DT)
+            l=long(phi,gamma,w,s)
+            m=mm(N)
+            K1=k1(N,l,m)
+            K2=k2(K1,l,N,m)
+            P=dt(DT,alpha)/K2
+            f=(N*np.cos(alpha)+P*np.sin(alpha))/2
     return f
 
 #plot section
@@ -95,22 +96,18 @@ fig=plt.figure(figsize=(12,9))
 plt.rc('xtick', labelsize=12)
 plt.rc('ytick', labelsize=12)
 #ax=fig.add_subplot(1,1,1, projection= '3d')
-plt.title("Force axial de fibre sous le déplacement tangentiel des lèvres de la fissure à CMOD = 0.1", fontsize=14, y=-0.1)
+plt.title("Force axial de fibre sous le déplacement tangentiel des lèvres de la fissure à \u03C6 = 15°", fontsize=14, y=-0.1)
 ax=fig.gca()
 ax.set_xlabel('g (mm)', fontsize=12)
-ax.xaxis.labelpad = 5
-#ax.invert_xaxis()
 ax.set_ylabel('F (N)',fontsize=12)
-ax.yaxis.labelpad = 5
-#ax.set_zlabel('Force axial F(N)',fontsize=12)
-#ax.zaxis.labelpad = 10
 
 #résultat
-angle=[-np.pi/6,-np.pi/12,0,np.pi/12, np.pi/6]    #angle inclinaison initial
-w=0.5
-s=np.linspace(0.001, 5, 1001)
-for phi in angle :
-    plt.plot(s,F(w,s,phi)*np.sin(np.arctan(s/w)), linewidth=2, label='\u03C6='+str(phi))
+#angle=[-np.pi/6,-np.pi/12,0,np.pi/12, np.pi/6]    #angle inclinaison initial
+phi=np.pi/12      #\u03C6
+w=np.linspace(0.0, 1, 5).tolist()
+s=np.linspace(0.0, 5, 1000)
+for i in range(1,len(w)) :
+    plt.plot(s,F(w[i],s,phi)*np.sin(np.arctan(s/w[i])), linewidth=2, label='CMOD='+str(w[i]))
     plt.legend(loc="lower right", prop = {"size":12})
             
 
